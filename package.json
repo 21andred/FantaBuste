@@ -8,7 +8,8 @@
     "dev": "node dev-server.mjs",
     "test": "node --test test/*.test.mjs",
     "import-rosters": "node tools/import-rosters.mjs",
-    "check-players": "node tools/check-players.mjs"
+    "check-players": "node tools/check-players.mjs",
+    "add-players": "node tools/add-players.mjs"
   },
   "dependencies": {
     "@netlify/blobs": "^11.1.7"

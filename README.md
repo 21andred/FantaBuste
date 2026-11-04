@@ -36,7 +36,8 @@ da un menu con la propria rosa: non si può dichiarare un giocatore che non si h
 **Dati dei giocatori** — in [`config/players.mjs`](config/players.mjs): data di nascita, ruolo Mantra e squadra
 di Serie A, con il nome esattamente come nelle rose. I giocatori presenti lì hanno l'anno precompilato e bloccato;
 per gli altri lo inserisce chi dichiara, e tutti lo vedono quando si aprono le dichiarazioni.
-`npm run check-players` mostra per ogni squadra cosa manca e segnala i nomi che non corrispondono alle rose.
+Per aggiungerli: salva la tabella (colonne Ruolo, Nome, Squadra, Data di nascita, separate da tab) e lancia
+`npm run add-players -- tabella.tsv`. `npm run check-players` mostra per ogni squadra cosa manca e segnala i nomi che non corrispondono alle rose.
 
 **Regole e tempi** — in [`config/league.mjs`](config/league.mjs):
 
@@ -79,6 +80,8 @@ config/league.mjs         configurazione della lega
 config/rosters.mjs        rose (generate dall'Excel)
 config/players.mjs        data di nascita, ruolo e squadra dei giocatori
 tools/import-rosters.mjs  import delle rose dall'export Excel
+tools/add-players.mjs     import di date, ruoli e squadre da tabella
+tools/check-players.mjs   controllo dei dati mancanti
 lib/engine.mjs            regole dell'asta (logica pura, testata)
 lib/server.mjs            API, PIN, gestione delle richieste contemporanee
 netlify/functions/api.mjs funzione Netlify che collega le API a Netlify Blobs
