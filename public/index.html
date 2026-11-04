@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="it">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="color-scheme" content="light dark">
+  <title>FantaBuste</title>
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header class="top">
+    <div class="brand">
+      <img src="favicon.svg" alt="" width="28" height="28">
+      <div>
+        <strong>FantaBuste</strong>
+        <span id="season" class="muted"></span>
+      </div>
+    </div>
+    <div id="who"></div>
+  </header>
+  <main id="app" aria-live="polite">
+    <p class="muted center">Caricamento…</p>
+  </main>
+  <div id="toast" role="status"></div>
+  <footer>
+    <details>
+      <summary>Strumenti</summary>
+      <p class="muted small">Azzera l'asta (per esempio dopo una prova o a inizio stagione). Serve la chiave impostata su Netlify come <code>RESET_KEY</code>. Lo stato precedente viene archiviato.</p>
+      <form id="resetForm" class="row">
+        <input id="resetKey" type="password" placeholder="Chiave di reset" autocomplete="off">
+        <label class="small"><input id="keepPins" type="checkbox" checked> mantieni i PIN</label>
+        <button type="submit" class="btn danger">Azzera</button>
+      </form>
+    </details>
+  </footer>
+  <script src="app.js" type="module"></script>
+</body>
+</html>
