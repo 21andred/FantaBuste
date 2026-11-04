@@ -235,7 +235,7 @@ function rosterOptions() {
   const r = S.myRoster || [];
   const young = r.filter((p) => p.birthYear && p.birthYear >= S.minBirthYear);
   const unknown = r.filter((p) => !p.birthYear);
-  const opt = (p) => `<option value="${esc(p.name)}">${esc(p.name)} · costo ${p.cost}${p.birthYear ? ` · ${p.birthYear}` : ''}</option>`;
+  const opt = (p) => `<option value="${esc(p.name)}">${esc(p.name)}${p.role ? ` (${esc(p.role)})` : ''} · ${p.club ? `${esc(p.club)} · ` : ''}costo ${p.cost}${p.birthYear ? ` · ${p.birthYear}` : ''}</option>`;
   return `<option value="">Scegli…</option>`
     + (young.length ? `<optgroup label="Giovani">${young.map(opt).join('')}</optgroup>` : '')
     + (unknown.length ? `<optgroup label="Altri (anno da inserire)">${unknown.map(opt).join('')}</optgroup>` : '');
@@ -245,6 +245,8 @@ function lotHeader(lot) {
   return `
     <div class="player">${esc(lot.player)}</div>
     <div class="meta">
+      ${lot.role ? `<span class="chip">${esc(lot.role)}</span>` : ''}
+      ${lot.club ? `<span class="chip">${esc(lot.club)}</span>` : ''}
       <span class="chip">Nato nel ${lot.birthYear}</span>
       ${lot.cost != null ? `<span class="chip">Costo attuale ${lot.cost}</span>` : ''}
       <span class="chip ${lot.ownerId === S.me ? 'me' : ''}">Proprietario: ${tname(lot.ownerId)}</span>
@@ -268,7 +270,7 @@ function viewAuction() {
       <p class="muted small">Ordine di estrazione:</p>
       ${timerHtml('Si parte tra', c.deadline, S.timers.intro)}
       <ul class="list" style="margin-top:12px">${S.lots.map((l, i) => `
-        <li><span class="num muted">${i + 1}</span><span class="grow"><strong>${esc(l.player)}</strong> <span class="muted small">(${l.birthYear})</span><br><span class="small muted">${tname(l.ownerId)}</span></span></li>`).join('')}
+        <li><span class="num muted">${i + 1}</span><span class="grow"><strong>${esc(l.player)}</strong> <span class="muted small">(${[l.role, l.club, l.birthYear].filter(Boolean).map(esc).join(' · ')})</span><br><span class="small muted">${tname(l.ownerId)}</span></span></li>`).join('')}
       </ul>
       ${noneList()}
     </div>`;
@@ -384,7 +386,7 @@ function viewDone() {
     <div class="table-wrap"><table>
       <thead><tr><th>Giocatore</th><th>Da</th><th>A</th><th>Prezzo</th></tr></thead>
       <tbody>${S.lots.map((l) => `
-        <tr><td><strong>${esc(l.player)}</strong><br><span class="muted small">${l.birthYear} · ${HOW[l.result.how]}</span></td>
+        <tr><td><strong>${esc(l.player)}</strong><br><span class="muted small">${[l.role, l.club, l.birthYear].filter(Boolean).map(esc).join(' · ')}<br>${HOW[l.result.how]}</span></td>
         <td>${tname(l.ownerId)}</td><td><strong>${tname(l.result.winnerId)}</strong></td><td class="num">${l.result.price}</td></tr>`).join('')}
       </tbody>
     </table></div>
@@ -457,7 +459,7 @@ function bind() {
   on('declineBtn', () => { if (confirm('Sicuro di voler rinunciare?')) act('decide', { choice: 'decline' }); });
 
   on('copyBtn', async () => {
-    const lines = S.lots.map((l) => `${l.player} (${l.birthYear}): ${team(l.result.winnerId).name} a ${l.result.price} — ${HOW[l.result.how]}`);
+    const lines = S.lots.map((l) => `${l.player} (${[l.role, l.club, l.birthYear].filter(Boolean).join(', ')}): ${team(l.result.winnerId).name} a ${l.result.price} — ${HOW[l.result.how]}`);
     const txt = `FantaBuste — Giovani ${S.season}\n` + lines.join('\n');
     try { await navigator.clipboard.writeText(txt); toast('Riepilogo copiato.'); } catch { prompt('Copia il riepilogo:', txt); }
   });

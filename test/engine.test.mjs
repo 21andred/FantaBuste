@@ -56,7 +56,7 @@ test('esempio del regolamento: prelazione a 25+1', () => {
   assert.equal(s.current.step, 'decision');
   assert.equal(view(s, cfg, 'a', 3).current.high, 25);
   decide(s, cfg, 'a', 'confirm', 4);
-  assert.deepEqual(s.results[0], { player: 'Rossi', birthYear: 2006, previousCost: null, ownerId: 'a', winnerId: 'a', price: 26, how: 'prelazione' });
+  assert.deepEqual(s.results[0], { player: 'Rossi', birthYear: 2006, previousCost: null, role: '', club: '', ownerId: 'a', winnerId: 'a', price: 26, how: 'prelazione' });
 });
 
 test('rinuncia: va al miglior offerente', () => {
@@ -195,7 +195,7 @@ test('con le rose: solo giocatori della propria rosa, anno noto precompilato', (
   const rc = {
     ...cfg,
     teams: [
-      { id: 'a', name: 'A', players: [{ name: 'Yildiz', cost: 70 }, { name: 'Nuovo', cost: 3 }] },
+      { id: 'a', name: 'A', players: [{ name: 'Yildiz', cost: 70, role: 'W T', club: 'Juventus' }, { name: 'Nuovo', cost: 3 }] },
       { id: 'b', name: 'B', players: [{ name: 'Maignan', cost: 51 }] },
     ],
     birthYears: { Yildiz: 2005 },
@@ -205,6 +205,8 @@ test('con le rose: solo giocatori della propria rosa, anno noto precompilato', (
   declare(s, rc, 'a', { player: 'Yildiz', birthYear: 1990 }, 0); // anno ignorato: noto
   assert.equal(s.declarations.a.birthYear, 2005);
   assert.equal(s.declarations.a.cost, 70);
+  assert.equal(s.declarations.a.role, 'W T');
+  assert.equal(s.declarations.a.club, 'Juventus');
   assert.throws(() => declare(s, rc, 'a', { player: 'Nuovo', birthYear: 2001 }, 0), /giovane/);
   declare(s, rc, 'a', { player: 'Nuovo', birthYear: 2008 }, 0);
   assert.equal(s.declarations.a.birthYear, 2008);

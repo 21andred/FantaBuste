@@ -2,14 +2,16 @@
 //  CONFIGURAZIONE DELLA LEGA — modifica qui e fai push su GitHub
 // ============================================================
 import rosters from './rosters.mjs';
-import birthYears from './birthyears.mjs';
+import players from './players.mjs';
 
 // Nomi dei fantallenatori (facoltativi), per nome squadra
 const managers = {
   // 'Atletico Patagarru': 'Andrea',
 };
 
-const slug = (s) => s.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+const birthYear = (d) => (d ? Number(String(d).split('/').pop()) : null);
+
+const slug = (s) => s.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
 
 export default {
   // Stagione per cui si confermano i giovani (l'asta a buste si fa a settembre, prima dell'asta)
@@ -24,9 +26,16 @@ export default {
     id: slug(t.name),
     name: t.name,
     manager: managers[t.name] || '',
-    players: t.players,
+    players: t.players.map((p) => ({
+      ...p,
+      role: players[p.name]?.ruolo || '',
+      club: players[p.name]?.squadra || '',
+    })),
   })),
-  birthYears,
+  // Anni di nascita noti (da config/players.mjs)
+  birthYears: Object.fromEntries(
+    Object.entries(players).filter(([, p]) => p.nato).map(([name, p]) => [name, birthYear(p.nato)]),
+  ),
 
   // Offerta minima in busta
   minBid: 1,

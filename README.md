@@ -33,8 +33,10 @@ Il comando rigenera [`config/rosters.mjs`](config/rosters.mjs). Rifatelo ogni vo
 (mercato di gennaio, asta di settembre) e fate commit e push. Nella dichiarazione ogni squadra sceglie il giovane
 da un menu con la propria rosa: non si può dichiarare un giocatore che non si ha.
 
-**Anni di nascita** — in [`config/birthyears.mjs`](config/birthyears.mjs). I giocatori presenti lì hanno l'anno
-precompilato e bloccato. Per gli altri lo inserisce chi dichiara, e tutti lo vedono quando si aprono le dichiarazioni.
+**Dati dei giocatori** — in [`config/players.mjs`](config/players.mjs): data di nascita, ruolo Mantra e squadra
+di Serie A, con il nome esattamente come nelle rose. I giocatori presenti lì hanno l'anno precompilato e bloccato;
+per gli altri lo inserisce chi dichiara, e tutti lo vedono quando si aprono le dichiarazioni.
+`npm run check-players` mostra per ogni squadra cosa manca e segnala i nomi che non corrispondono alle rose.
 
 **Regole e tempi** — in [`config/league.mjs`](config/league.mjs):
 
@@ -75,7 +77,7 @@ Per simulare più squadre apri più finestre in incognito (o browser diversi).
 ```
 config/league.mjs         configurazione della lega
 config/rosters.mjs        rose (generate dall'Excel)
-config/birthyears.mjs     anni di nascita noti
+config/players.mjs        data di nascita, ruolo e squadra dei giocatori
 tools/import-rosters.mjs  import delle rose dall'export Excel
 lib/engine.mjs            regole dell'asta (logica pura, testata)
 lib/server.mjs            API, PIN, gestione delle richieste contemporanee
