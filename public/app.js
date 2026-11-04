@@ -170,7 +170,7 @@ setInterval(tickTimers, 250);
 // ---------------------------------------------------------------- schermate
 
 function viewLogin() {
-  const opts = S.teams.map((t) => `<option value="${esc(t.id)}">${esc(t.name)} — ${esc(t.manager)}${t.hasPin ? '' : ' (primo accesso)'}</option>`).join('');
+  const opts = S.teams.map((t) => `<option value="${esc(t.id)}">${esc(t.name)}${t.manager ? ` — ${esc(t.manager)}` : ''}${t.hasPin ? '' : ' (primo accesso)'}</option>`).join('');
   return `
   <div class="card stack">
     <h2>Entra con la tua squadra</h2>
@@ -210,12 +210,13 @@ function viewDeclaration() {
     <p class="muted small">Per la stagione ${esc(S.season)} sono giovani i nati dal <strong>${S.minBirthYear}</strong> in poi. Puoi confermarne uno solo. Finché non dichiarano tutti puoi cambiare idea.</p>
     ${mine}
     <div>
-      <label class="field" for="decPlayer">Giocatore</label>
-      <input id="decPlayer" type="text" autocomplete="off" placeholder="Nome e cognome" maxlength="60">
+      <label class="field" for="decPlayer">Giocatore della tua rosa</label>
+      <select id="decPlayer">${rosterOptions()}</select>
     </div>
     <div>
       <label class="field" for="decYear">Anno di nascita</label>
-      <input id="decYear" type="number" inputmode="numeric" min="${S.minBirthYear}" max="2030" placeholder="${S.minBirthYear + 1}">
+      <input id="decYear" type="number" inputmode="numeric" min="${S.minBirthYear}" max="2030" placeholder="es. ${S.minBirthYear + 1}">
+      <p id="decInfo" class="muted small"></p>
     </div>
     <button class="btn primary wide" id="decBtn">${d && !d.none ? 'Cambia dichiarazione' : 'Dichiara'}</button>
     <button class="btn wide" id="decNone">Non confermo nessun giovane</button>
@@ -230,11 +231,22 @@ function viewDeclaration() {
   </div>`;
 }
 
+function rosterOptions() {
+  const r = S.myRoster || [];
+  const young = r.filter((p) => p.birthYear && p.birthYear >= S.minBirthYear);
+  const unknown = r.filter((p) => !p.birthYear);
+  const opt = (p) => `<option value="${esc(p.name)}">${esc(p.name)} · costo ${p.cost}${p.birthYear ? ` · ${p.birthYear}` : ''}</option>`;
+  return `<option value="">Scegli…</option>`
+    + (young.length ? `<optgroup label="Giovani">${young.map(opt).join('')}</optgroup>` : '')
+    + (unknown.length ? `<optgroup label="Altri (anno da inserire)">${unknown.map(opt).join('')}</optgroup>` : '');
+}
+
 function lotHeader(lot) {
   return `
     <div class="player">${esc(lot.player)}</div>
     <div class="meta">
       <span class="chip">Nato nel ${lot.birthYear}</span>
+      ${lot.cost != null ? `<span class="chip">Costo attuale ${lot.cost}</span>` : ''}
       <span class="chip ${lot.ownerId === S.me ? 'me' : ''}">Proprietario: ${tname(lot.ownerId)}</span>
     </div>
     <p class="muted small">${youngInfo(lot.birthYear)}</p>`;
@@ -413,6 +425,19 @@ function bind() {
   });
   document.getElementById('loginPin')?.addEventListener('keydown', (e) => { if (e.key === 'Enter') document.getElementById('loginBtn').click(); });
 
+  const decSel = document.getElementById('decPlayer');
+  if (decSel) {
+    const yr = document.getElementById('decYear');
+    const sync = () => {
+      const p = (S.myRoster || []).find((x) => x.name === decSel.value);
+      if (p && p.birthYear) { yr.value = p.birthYear; yr.disabled = true; }
+      else if (yr.disabled) { yr.value = ''; yr.disabled = false; }
+      const y = Number(yr.value);
+      document.getElementById('decInfo').textContent = !decSel.value || !y ? ''
+        : y < S.minBirthYear ? `Non è un giovane per il ${S.season}.` : youngInfo(y);
+    };
+    decSel.onchange = sync; yr.oninput = sync; sync();
+  }
   on('decBtn', () => act('declare', {
     player: document.getElementById('decPlayer').value,
     birthYear: Number(document.getElementById('decYear').value),

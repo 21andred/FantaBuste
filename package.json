@@ -6,9 +6,13 @@
   "description": "Asta a buste chiuse per la conferma dei giovani del fantacalcio",
   "scripts": {
     "dev": "node dev-server.mjs",
-    "test": "node --test test/*.test.mjs"
+    "test": "node --test test/*.test.mjs",
+    "import-rosters": "node tools/import-rosters.mjs"
   },
   "dependencies": {
     "@netlify/blobs": "^11.1.7"
+  },
+  "devDependencies": {
+    "read-excel-file": "^9.3.14"
   }
 }

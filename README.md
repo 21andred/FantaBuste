@@ -23,15 +23,26 @@ nemmeno con gli strumenti sviluppatore del browser. Dopo la chiusura di ogni gio
 
 ## Configurazione
 
-Tutto si modifica in [`config/league.mjs`](config/league.mjs):
+**Rose e squadre** — si importano dall'export Excel della lega (foglio `ROSE`, con le colonne "Squadra | costo"):
 
-- `teams`: nomi delle squadre e dei fantallenatori (l'`id` non va cambiato durante la stagione);
+```bash
+npm run import-rosters -- percorso/del/file.xlsx
+```
+
+Il comando rigenera [`config/rosters.mjs`](config/rosters.mjs). Rifatelo ogni volta che le rose cambiano
+(mercato di gennaio, asta di settembre) e fate commit e push. Nella dichiarazione ogni squadra sceglie il giovane
+da un menu con la propria rosa: non si può dichiarare un giocatore che non si ha.
+
+**Anni di nascita** — in [`config/birthyears.mjs`](config/birthyears.mjs). I giocatori presenti lì hanno l'anno
+precompilato e bloccato. Per gli altri lo inserisce chi dichiara, e tutti lo vedono quando si aprono le dichiarazioni.
+
+**Regole e tempi** — in [`config/league.mjs`](config/league.mjs):
+
 - `season`, `seasonStartYear`, `minBirthYear`: la stagione e da che anno di nascita si è "giovani"
   (ogni anno aumentate tutti e tre di 1);
+- `managers`: nomi dei fantallenatori (facoltativi);
 - `minBid`, `priceIfNoBids`: offerta minima e prezzo se nessuno offre;
 - `timers`: secondi a disposizione per ogni fase.
-
-Dopo la modifica fai commit e push: Netlify ripubblica il sito da solo.
 
 **PIN**: al primo accesso ogni fantallenatore sceglie il PIN della propria squadra (4–8 cifre).
 Conviene che lo facciano tutti qualche giorno prima dell'asta.
@@ -63,6 +74,9 @@ Per simulare più squadre apri più finestre in incognito (o browser diversi).
 
 ```
 config/league.mjs         configurazione della lega
+config/rosters.mjs        rose (generate dall'Excel)
+config/birthyears.mjs     anni di nascita noti
+tools/import-rosters.mjs  import delle rose dall'export Excel
 lib/engine.mjs            regole dell'asta (logica pura, testata)
 lib/server.mjs            API, PIN, gestione delle richieste contemporanee
 netlify/functions/api.mjs funzione Netlify che collega le API a Netlify Blobs

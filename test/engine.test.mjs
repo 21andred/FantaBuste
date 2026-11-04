@@ -56,7 +56,7 @@ test('esempio del regolamento: prelazione a 25+1', () => {
   assert.equal(s.current.step, 'decision');
   assert.equal(view(s, cfg, 'a', 3).current.high, 25);
   decide(s, cfg, 'a', 'confirm', 4);
-  assert.deepEqual(s.results[0], { player: 'Rossi', birthYear: 2006, ownerId: 'a', winnerId: 'a', price: 26, how: 'prelazione' });
+  assert.deepEqual(s.results[0], { player: 'Rossi', birthYear: 2006, previousCost: null, ownerId: 'a', winnerId: 'a', price: 26, how: 'prelazione' });
 });
 
 test('rinuncia: va al miglior offerente', () => {
@@ -189,4 +189,33 @@ test('API: PIN, dichiarazioni concorrenti, buste', async () => {
   now += 10_000;
   st = await call('GET', 'state', null, null);
   assert.equal(st.body.phase, 'done');
+});
+
+test('con le rose: solo giocatori della propria rosa, anno noto precompilato', () => {
+  const rc = {
+    ...cfg,
+    teams: [
+      { id: 'a', name: 'A', players: [{ name: 'Yildiz', cost: 70 }, { name: 'Nuovo', cost: 3 }] },
+      { id: 'b', name: 'B', players: [{ name: 'Maignan', cost: 51 }] },
+    ],
+    birthYears: { Yildiz: 2005 },
+  };
+  const s = newState(rc, 0);
+  assert.throws(() => declare(s, rc, 'a', { player: 'Maignan', birthYear: 2006 }, 0), /rosa/);
+  declare(s, rc, 'a', { player: 'Yildiz', birthYear: 1990 }, 0); // anno ignorato: noto
+  assert.equal(s.declarations.a.birthYear, 2005);
+  assert.equal(s.declarations.a.cost, 70);
+  assert.throws(() => declare(s, rc, 'a', { player: 'Nuovo', birthYear: 2001 }, 0), /giovane/);
+  declare(s, rc, 'a', { player: 'Nuovo', birthYear: 2008 }, 0);
+  assert.equal(s.declarations.a.birthYear, 2008);
+  const v = view(s, rc, 'a', 0);
+  assert.equal(v.myRoster.find((p) => p.name === 'Yildiz').birthYear, 2005);
+  assert.equal(v.teams[0].players, undefined);
+});
+
+test('config reale: 10 squadre con rose caricate', async () => {
+  const { default: league } = await import('../config/league.mjs');
+  assert.equal(league.teams.length, 10);
+  assert.equal(new Set(league.teams.map((t) => t.id)).size, 10);
+  assert.ok(league.teams.every((t) => t.players.length > 0));
 });
