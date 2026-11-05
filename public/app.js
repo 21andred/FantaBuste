@@ -342,6 +342,25 @@ function bidsLine(round) {
   return `<div class="bids">${round.type === 'spareggio' ? 'Spareggio' : 'Buste'} — ${parts.join(' · ')}</div>`;
 }
 
+/** Crediti rimasti alla squadra vincitrice dopo questo giocatore (budget meno quanto speso fin qui). */
+function creditsAfter(lot) {
+  const winner = lot.result.winnerId;
+  let spent = 0;
+  for (const l of S.lots) {
+    if (l.status === 'done' && l.result.winnerId === winner) spent += l.result.price;
+    if (l === lot) break;
+  }
+  return S.budget - spent;
+}
+
+function awardText(lot) {
+  return `${team(lot.result.winnerId).name} si aggiudica ${lot.player} per ${lot.result.price} crediti. I crediti attualmente disponibili sono ${creditsAfter(lot)}.`;
+}
+
+function awardHtml(lot) {
+  return `<strong>${tname(lot.result.winnerId)}</strong> si aggiudica <strong>${esc(lot.player)}</strong> per <strong>${lot.result.price}</strong> crediti. I crediti attualmente disponibili sono <strong>${creditsAfter(lot)}</strong>.`;
+}
+
 function resultBlock(lot, big = false) {
   const r = lot.result;
   const kept = r.winnerId === lot.ownerId;
@@ -349,8 +368,9 @@ function resultBlock(lot, big = false) {
   return `
     <div class="${big ? 'high' : ''}" style="${big ? '' : 'margin-top:4px'}">
       ${big ? `<div class="muted small">${HOW[r.how]}</div><div class="n">${r.price}</div><div><strong>${tname(r.winnerId)}</strong>${kept ? ' (resta al proprietario)' : ''}</div>` :
-        `<div><strong>${tname(r.winnerId)}</strong> a <strong>${r.price}</strong> <span class="result-how">· ${HOW[r.how]}</span></div>`}
+        `<div>${awardHtml(lot)} <span class="result-how">· ${HOW[r.how]}</span></div>`}
     </div>
+    ${big ? `<p class="notice">${awardHtml(lot)}</p>` : ''}
     ${(lot.rounds || []).map(bidsLine).join('')}
     <p class="muted small">${nextYear ? `L'anno prossimo ${tname(r.winnerId)} potrà rinnovarlo.` : 'Non sarà più giovane l\'anno prossimo.'}</p>`;
 }
@@ -368,7 +388,7 @@ function scaletta() {
       <li class="${l.status === 'live' ? 'live' : ''}">
         <span class="num muted">${i + 1}</span>
         <span class="grow">${esc(l.player)} <span class="muted small">· ${tname(l.ownerId)}</span>
-          ${l.status === 'done' ? `<br><span class="small">→ <strong>${tname(l.result.winnerId)}</strong> a ${l.result.price} <span class="muted">(${HOW[l.result.how]})</span></span>` : ''}
+          ${l.status === 'done' ? `<br><span class="small">${awardHtml(l)} <span class="muted">(${HOW[l.result.how]})</span></span>` : ''}
         </span>
         ${l.status === 'live' ? '<span class="chip gold">in corso</span>' : l.status === 'done' ? '<span class="chip ok">✓</span>' : '<span class="chip">attesa</span>'}
       </li>`).join('')}
@@ -459,7 +479,7 @@ function bind() {
   on('declineBtn', () => { if (confirm('Sicuro di voler rinunciare?')) act('decide', { choice: 'decline' }); });
 
   on('copyBtn', async () => {
-    const lines = S.lots.map((l) => `${l.player} (${[l.role, l.club, l.birthYear].filter(Boolean).join(', ')}): ${team(l.result.winnerId).name} a ${l.result.price} — ${HOW[l.result.how]}`);
+    const lines = S.lots.map((l) => `${awardText(l)} (${HOW[l.result.how]})`);
     const txt = `FantaBuste — Giovani ${S.season}\n` + lines.join('\n');
     try { await navigator.clipboard.writeText(txt); toast('Riepilogo copiato.'); } catch { prompt('Copia il riepilogo:', txt); }
   });

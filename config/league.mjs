@@ -37,6 +37,10 @@ export default {
     Object.entries(players).filter(([, p]) => p.nato).map(([name, p]) => [name, birthYear(p.nato)]),
   ),
 
+  // Crediti di ogni squadra: dopo ogni aggiudicazione il sito mostra i crediti rimasti
+  // (budget meno quanto speso dalla squadra in quest'asta delle buste)
+  budget: 500,
+
   // Offerta minima in busta
   minBid: 1,
   // Prezzo a cui il proprietario tiene il giocatore se nessuno fa offerte
