@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { newState, declare, bid, decide, tick, view, GameError, lastYoungStartYear } from '../lib/engine.mjs';
+import { newState, declare, bid, decide, ready, tick, view, GameError, lastYoungStartYear } from '../lib/engine.mjs';
 import { createApi } from '../lib/server.mjs';
 
 const cfg = {
@@ -10,7 +10,7 @@ const cfg = {
   teams: ['a', 'b', 'c', 'd'].map((id) => ({ id, name: id.toUpperCase(), manager: id })),
   minBid: 1,
   priceIfNoBids: 1,
-  timers: { intro: 30, bidding: 90, decision: 120, tiebreak: 60, result: 10 },
+  timers: { bidding: 90, decision: 120, tiebreak: 60, result: 10 },
 };
 const noShuffle = () => 0.999999; // Fisher–Yates con j=i -> ordine invariato
 
@@ -20,7 +20,7 @@ function setup(decls) {
   return s;
 }
 function toFirstLot(s) {
-  tick(s, cfg, s.current.deadline, noShuffle);
+  for (const t of ['a', 'b', 'c', 'd']) ready(s, cfg, t, 0);
   return s;
 }
 
@@ -122,6 +122,7 @@ test('asta completa con più giocatori arriva a "done"', () => {
   });
   assert.equal(s.phase, 'auction');
   assert.equal(s.lots.length, 3);
+  toFirstLot(s);
   tick(s, cfg, 10 ** 9); // tutto scade: nessuno offre
   assert.equal(s.phase, 'done');
   assert.equal(s.results.length, 3);
@@ -171,7 +172,14 @@ test('API: PIN, dichiarazioni concorrenti, buste', async () => {
   assert.equal(st.body.phase, 'auction');
   assert.equal(st.body.current.step, 'intro');
 
-  now += 30_000;
+  now += 10 ** 7; // il tempo passa ma senza "pronto" non si parte
+  st = await call('GET', 'state', 'b', '1234');
+  assert.equal(st.body.current.step, 'intro');
+  await Promise.all(['a', 'b', 'c'].map((t) => call('POST', 'ready', t, '1234', {})));
+  st = await call('GET', 'state', 'b', '1234');
+  assert.equal(st.body.current.step, 'intro');
+  assert.deepEqual(st.body.current.ready.sort(), ['a', 'b', 'c']);
+  await call('POST', 'ready', 'd', '1234', {});
   st = await call('GET', 'state', 'b', '1234');
   assert.equal(st.body.current.step, 'bidding');
 

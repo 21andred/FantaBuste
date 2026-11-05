@@ -48,7 +48,6 @@ export default {
 
   // Tempi (in secondi)
   timers: {
-    intro: 30,      // tempo per vedere l'elenco dei giocatori alle buste prima di iniziare
     bidding: 90,    // tempo per consegnare la busta
     decision: 120,  // tempo per il proprietario per decidere (scaduto = rinuncia)
     tiebreak: 60,   // tempo per il giro di spareggio in caso di parità

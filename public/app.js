@@ -261,14 +261,25 @@ function respondedChips(c) {
   }).join('')}</div>`;
 }
 
+function readyBlock(c) {
+  const ok = c.ready.includes(S.me);
+  const missing = S.teams.filter((t) => !c.ready.includes(t.id));
+  return `
+    <div class="row" style="margin:10px 0"><span class="chip ${missing.length ? '' : 'ok'}">${c.ready.length}/${S.teams.length} pronti</span></div>
+    ${ok
+      ? `<p class="notice">Sei pronto. ${missing.length ? `In attesa di: ${missing.map((t) => esc(t.name)).join(', ')}.` : 'Si parte!'}</p>`
+      : `<button class="btn primary wide" id="readyBtn">Pronto</button>`}
+    <div class="meta">${S.teams.map((t) => `<span class="chip ${c.ready.includes(t.id) ? 'ok' : ''} ${t.id === S.me ? 'me' : ''}">${c.ready.includes(t.id) ? '✓' : '…'} ${esc(t.name)}</span>`).join('')}</div>`;
+}
+
 function viewAuction() {
   const c = S.current;
   if (c.step === 'intro') {
     return `
     <div class="card hero">
       <h2>Giocatori alle buste</h2>
-      <p class="muted small">Ordine di estrazione:</p>
-      ${timerHtml('Si parte tra', c.deadline, S.timers.intro)}
+      <p class="muted small">Hanno dichiarato tutti. Ecco l'ordine di estrazione. La prima busta parte quando tutti hanno cliccato <strong>Pronto</strong>.</p>
+      ${readyBlock(c)}
       <ul class="list" style="margin-top:12px">${S.lots.map((l, i) => `
         <li><span class="num muted">${i + 1}</span><span class="grow"><strong>${esc(l.player)}</strong> <span class="muted small">(${[l.role, l.club, l.birthYear].filter(Boolean).map(esc).join(' · ')})</span><br><span class="small muted">${tname(l.ownerId)}</span></span></li>`).join('')}
       </ul>
@@ -464,6 +475,7 @@ function bind() {
     player: document.getElementById('decPlayer').value,
     birthYear: Number(document.getElementById('decYear').value),
   }, 'Dichiarazione consegnata.'));
+  on('readyBtn', () => act('ready', {}, 'Sei pronto!'));
   on('decNone', () => act('declare', { none: true }, 'Dichiarazione consegnata.'));
 
   const amount = document.getElementById('bidAmount');

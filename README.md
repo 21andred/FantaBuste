@@ -7,7 +7,8 @@ Tutti si collegano dal telefono nello stesso momento, ognuno con la propria squa
 
 1. **Dichiarazione**: ogni squadra dichiara il giovane che vuole confermare (uno solo), oppure "nessuno".
    I nomi restano segreti finché non hanno dichiarato tutti. Il sito rifiuta chi non è giovane.
-2. **Estrazione**: appena hanno dichiarato tutti, il sito estrae a sorte l'ordine e mostra l'elenco dei giocatori alle buste.
+2. **Estrazione e "Pronto"**: appena hanno dichiarato tutti, il sito estrae a sorte l'ordine e mostra l'elenco dei giocatori alle buste.
+   Ognuno clicca **Pronto**: la prima busta (e il suo timer) parte solo quando sono pronte tutte le squadre.
 3. **Buste**: per ogni giocatore tutti tranne il proprietario consegnano un'offerta segreta (o passano).
    Il giro si chiude quando hanno risposto tutti o quando scade il tempo (chi non risponde passa).
 4. **Apertura**: viene mostrata l'offerta più alta.
